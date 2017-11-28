@@ -114,7 +114,7 @@ void parseGPGGA(const char* GPGGAstr)
     
     current_lat = latitude;
     current_lon = longitude;
-    current_alt = altitude;
+    current_alt = roundf(altitude * 100) / 100;
     
     sprintf(buff, "latitude = %10.3f, longitude = %10.3f, altitude = %10.3f, satellites = %d", latitude, longitude, altitude, satellites);
 

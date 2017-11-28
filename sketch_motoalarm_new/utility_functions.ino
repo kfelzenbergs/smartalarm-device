@@ -32,15 +32,32 @@ void powerCycle() {
 
     gpsTracker.GSM_work_mode(1);
 
-    if(!gnss.open_GNSS(EPO_QUICK_MODE)){
+    if(!gnss.open_GNSS_default_mode()){
+    //if(!gnss.open_GNSS(EPO_QUICK_MODE)){
       logger("Open GNSS failed!");
     }
     else {
-      logger("Open GNSS EPO QUICK MODE OK.");
+      logger("Open GNSS DEFAULT MODE OK.");
     }
+
+    getIMEI();
+    if (numbers_only(IMEI)) {
+  
+      identity_imei = true;
+      identity_uuid = false;
+  
+      logger("Sim initialized");
+      logger("IMEI [" + String(IMEI) + "] is usable for identity and is of length " + String(String(IMEI).length()));
+    }
+
+    status = gnss.isNetworkRegistered();
+    SerialUSB.println("isNetworkRegistered " + String(status));
+    status = gnss.isTimeSynchronized();
+    SerialUSB.println("isTimeSynchronized " + String(status));
   }
 
   gprsSetupCompleted = false;
+
   
   SerialUSB.println("is healthy" + String(is_healthy));
 
@@ -59,6 +76,11 @@ void showPixel(int timeout, String color) {
     r = 100;
   else if (color =="green")
     g = 100;
+  else if (color == "yellow") {
+    r = 255;
+    g = 255;
+  }
+    
   
   pixels.setPixelColor(0, pixels.Color(r, g, b));
   pixels.show();
@@ -93,9 +115,9 @@ void getIMEI()
          
       if (numbers_only(pch)) {      
         if (strlen(pch) < 20) {
-            strcpy(IMEI, pch);
-            logger("Got IMEI: " + String(pch));
-          }     
+          strcpy(IMEI, pch);
+          logger("Got IMEI: " + String(pch));
+        }  
       }
       pch = strtok (NULL, " ,.-");
     }
@@ -145,6 +167,9 @@ static double getIntNumber(const char *s)
 
 int numbers_only(const char *s)
 {
+
+    if (String(*s).length() == 0) return 0;
+    
     while (*s) {
       char x = *s++;
         if (isdigit(x) == 0) return 0;

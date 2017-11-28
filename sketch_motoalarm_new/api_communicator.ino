@@ -3,7 +3,7 @@
 #define PORT 4242
 #define URL_STATS "/stats_gateway/"
 #define URL_EVENT "/event_gateway/"
-#define IDENTITY "d7f4d1d0-07de-44d7-be02-50e0d2e0f95a"
+#define IDENTITY "d39a8c02-effa-449d-80be-50dbd6315ce3"
 
 GPRS gprs = GPRS();
 
@@ -57,8 +57,8 @@ void setupGPRS() {
   gprsSetupCompleted = true;
 }
 
-void send_stats_update(float lat, float lon, float alt, int satelites, int current_speed, int currentBatLevel, boolean is_charging, float battery_voltage){
-
+void send_stats_update(float lat, float lon, float alt, int satelites, int current_speed, boolean acc_on, float car_voltage, float battery_voltage){
+  showPixel(500, "green");
   if (!gprsSetupCompleted) {
     setupGPRS();  
   }
@@ -102,7 +102,7 @@ void send_stats_update(float lat, float lon, float alt, int satelites, int curre
     // sprintf(postContent, "POST %s HTTP/1.1\r\nContent-Type: application/json\r\nHost: %s\r\nContent-Length: %d\r\n\r\n%s", URL_STATS, HOST, strlen(payload), payload);
     
     // send tcp
-    sprintf(postContent, "%s,%f,%f,%f,%d,%d,%d,%f", payload, lat, lon, alt, satelites, current_speed, is_charging, battery_voltage);
+    sprintf(postContent, "%s,%f,%f,%f,%d,%d,%d,%f,%f", payload, lat, lon, alt, satelites, current_speed, acc_on, car_voltage, battery_voltage);
 
     logger(postContent);
     

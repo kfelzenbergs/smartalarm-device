@@ -18,15 +18,13 @@
 #include <Adafruit_NeoPixel.h>
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(LED_NUM, RGBPIN, NEO_GRB + NEO_KHZ800);
 
-
-//Timer t;
 Thread batT = Thread();
 Thread smsT = Thread();
 Thread gpsT = Thread();
 Thread gsmT = Thread();
 Thread angleT = Thread();
-
-int skaititajs = 0;
+Thread carvT = Thread();
+Thread accT = Thread();
 
 #define MIN_SATELITES 3
 char IMEI[20];
@@ -61,6 +59,8 @@ int currentBatLevel = 0;
 boolean is_charging = 0;
 int batControl = 4;
 float battery_voltage;
+float car_voltage;
+boolean acc_on;
 
 // Accelerometer vars
 ADXL345 adxl; //variable adxl is an instance of the ADXL345 library
@@ -123,7 +123,7 @@ void fixGPS() {
 
 void sendData() {
   SerialUSB.println("sendData start");
-  send_stats_update(current_lat, current_lon, current_alt, satellites, current_speed, currentBatLevel, is_charging, battery_voltage);
+  send_stats_update(current_lat, current_lon, current_alt, satellites, current_speed, acc_on, car_voltage, battery_voltage);
   SerialUSB.println("sendData end");
 }
 
@@ -143,49 +143,19 @@ void setup() {
   }
 
   powerCycle();
-  //gpsTracker.Power_On();
-  
-  
-
-//  while(!gpsTracker.waitForNetworkRegister())
-//  {
-//    logger("Network error!");
-//    powerCycle();
-//  }
-//
-//  gpsTracker.GSM_work_mode(1);
-//
-//  if(!gnss.open_GNSS(EPO_QUICK_MODE)){
-//    logger("Open GNSS failed!");
-//  }
-//  else {
-//    logger("Open GNSS EPO QUICK MODE OK.");
-//  }
-
-  getIMEI();
-  if (numbers_only(IMEI)) {
-
-    identity_imei = true;
-    identity_uuid = false;
-
-    logger("Sim initialized");
-    logger("IMEI " + String(IMEI) + " is usable for identity");
-  }
   
   //Accelerometer block
   adxl.powerOn();
   configureADXL();
 
-  // Define timed events
-//  t.every(60000, checkBatteryVoltage); // every 60 secs
-//  t.every(30000, checkSMS); // every 30 secs
-//  t.every(30000, checkGPS);  // every 30 secs
-//  t.every(30000, checkAngle); // every 30 secs
-//  //t.every(60000, checkVoltage); // every 60 secs
-//  t.every(60000, sendData); // send data to api every 60 secs
-
   batT.onRun(checkBatteryVoltage);
   batT.setInterval(60000);
+
+  carvT.onRun(checkCarVoltage);
+  carvT.setInterval(10000);
+
+  accT.onRun(checkAcc);
+  accT.setInterval(10000);
 
   smsT.onRun(checkSMS);
   smsT.setInterval(30000);
@@ -197,14 +167,18 @@ void setup() {
   gsmT.setInterval(60000);
 
   angleT.onRun(checkAngle);
-  angleT.setInterval(30000);
-
-  
+  angleT.setInterval(30000);  
 }
 
 void loop() {
   if(batT.shouldRun())
     batT.run();
+
+  if(carvT.shouldRun())
+    carvT.run();
+
+  if(accT.shouldRun())
+    accT.run();
 
   if(smsT.shouldRun())
     smsT.run();
@@ -217,11 +191,6 @@ void loop() {
 
   if(angleT.shouldRun())
     angleT.run();
-    
-//  skaititajs += 1;
-  //t.update();
-
-  
 
   showPixel(500, "blue");
   showPixel(500, "");

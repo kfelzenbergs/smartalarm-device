@@ -1,5 +1,6 @@
 void checkGPS() {
   logger("checkGPS start");
+  showPixel(500, "yellow");
   //GPS block starts
 
   if(getGPSData("AT+QGNSSRD=\"NMEA/GGA\"\n\r", "$GNGGA,"))
@@ -181,7 +182,9 @@ void checkSMS() {
   logger("checkSMS end");
 }
 
-void checkVoltage() {
+void checkCarVoltage() {
+  const int pin_car_voltage = A0;
+
   int num_samples = 10;
   int sum = 0;                    // sum of samples taken
   unsigned char sample_count = 0; // current sample number
@@ -189,7 +192,7 @@ void checkVoltage() {
 
   // take a number of analog samples and add them up
   while (sample_count < num_samples) {
-      sum += analogRead(A0);
+      sum += analogRead(pin_car_voltage);
       sample_count++;
       delay(10);
   }
@@ -199,8 +202,8 @@ void checkVoltage() {
     voltage = 0;
   }
   
-  battery_voltage = roundf(voltage * 11.132 * 100) / 100;
-  logger("Car Voltage: " + String(battery_voltage) + "V");
+  car_voltage = roundf(voltage * 11.132 * 100) / 100;
+  logger("Car Voltage: " + String(car_voltage) + "V");
   
   sample_count = 0;
   sum = 0;
@@ -213,6 +216,23 @@ void checkBatteryVoltage() {
   float v = a/1023.0*3.3*2.0;        // there's an 10M and 10M resistor divider
   battery_voltage = roundf(v * 100) / 100;
   logger("Battery Voltage: " + String(battery_voltage) + "V");
+}
+
+// check if car engine is on
+void checkAcc() {
+  const int pin_acc = A1;
+
+  int acc = analogRead(pin_acc);
+  float voltage = 0.0;
+  voltage = (float)acc * 3.24 / 1024.0;
+  logger("Acc: " + String(voltage));
+
+  if (voltage > 3.0 && voltage < 4.0) {
+    acc_on = true;
+  }
+  else {
+    acc_on = false;
+  }
 }
 
 

@@ -11,7 +11,6 @@
 #include <MemoryFree.h>;
 #include <pgmStrToRAM.h>; // not needed for new way. but good to have for reference.
 
-#define APN "internet.lmt.lv"
 #define RGBPOWER     6          //To use User LED, D6 should be HIGH.
 #define RGBPIN       10
 #define LED_NUM      1

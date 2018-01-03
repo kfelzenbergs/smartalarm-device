@@ -34,10 +34,12 @@ void powerCycle() {
 
     if(!gnss.open_GNSS_default_mode()){
     //if(!gnss.open_GNSS(EPO_QUICK_MODE)){
+    //if(!gnss.open_GNSS_EPO_LP_mode()){
+    
       logger("Open GNSS failed!");
     }
     else {
-      logger("Open GNSS DEFAULT MODE OK.");
+      logger("open_GNSS_EPO_LP_mode OK.");
     }
 
     getIMEI();

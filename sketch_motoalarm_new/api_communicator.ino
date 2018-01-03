@@ -1,9 +1,9 @@
 #define APN "internet.lmt.lv"
-#define HOST "46.101.247.231"
+#define HOST "<HOST IP>"
 #define PORT 4242
 #define URL_STATS "/stats_gateway/"
 #define URL_EVENT "/event_gateway/"
-#define IDENTITY "d39a8c02-effa-449d-80be-50dbd6315ce3"
+#define IDENTITY "<UDID>"
 
 GPRS gprs = GPRS();
 

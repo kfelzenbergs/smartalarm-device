@@ -9,14 +9,7 @@ void checkGPS() {
   }
   else {
     logger("Failed to get GGA GPS data");
-
     powerCycle();
-    if(!gnss.open_GNSS(EPO_QUICK_MODE)){
-    logger("Open GNSS failed!");
-    }
-    else {
-      logger("Open GNSS EPO QUICK MODE OK.");
-    }
   }
 
   if(getGPSData("AT+QGNSSRD=\"NMEA/RMC\"\n\r", "$GNRMC,"))
@@ -27,7 +20,7 @@ void checkGPS() {
     logger("Failed to get RMC GPS data");
   }
 
-  if (!gpsFixed || satellites < 3) {
+  if (!gpsFixed || satellites < MIN_SATELITES) {
     gpsFixed = false;
     fixGPS();
   }
@@ -60,13 +53,6 @@ void checkGPS() {
     }
     
   }
-
-//  if(!gnss.open_GNSS(EPO_LP_MODE)){
-//    logger("Open GNSS failed!");
-//  }
-//  else {
-//    logger("Open GNSS EPO LP MODE OK.");
-//  }
 
   //gnss.close_GNSS();
   
